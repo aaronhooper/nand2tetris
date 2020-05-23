@@ -39,7 +39,7 @@ CHIP CPU {
         pc[15];          // address of next instruction
 
     PARTS:
-    Mux16 (a=, b=, sel=, out=);
+    Mux16 (a=, b=instruction, sel=instruction[15], out=);
     Mux16 (a=, b=inM, sel=, out=);
     PC (in=, load=, inc=, reset=reset);
     Register (in=, load=, out=);  // A register
