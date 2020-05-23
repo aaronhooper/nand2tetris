@@ -41,7 +41,7 @@ CHIP CPU {
     PARTS:
     Mux16 (a=, b=, sel=, out=);
     Mux16 (a=, b=, sel=, out=);
-    PC (in=, load=, inc=, reset=);
+    PC (in=, load=, inc=, reset=reset);
     Register (in=, load=, out=);  // A register
     Register (in=, load=, out=);  // D register
     ALU (
