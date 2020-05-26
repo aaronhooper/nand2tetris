@@ -54,12 +54,20 @@ CHIP CPU {
     PC (in=Aout, load=, inc=true, reset=reset);
 
     /* D register */
-    Register (in=, load=, out=);
+    /* instruction[3] -> d3 */
+    Register (in=, load=instruction[3], out=Dout);
 
+    /* instruction[11] -> zx / c1 */
+    /* instruction[10] -> nx / c2 */
+    /* instruction[9]  -> zy / c3 */
+    /* instruction[8]  -> ny / c4 */
+    /* instruction[7]  -> f  / c5 */
+    /* instruction[6]  -> no / c6 */
     ALU (
-        x=, y=,
-        zx=, nx=, zy=, ny=,
-        f=, no=,
+        x=Aout, y=amMux,
+        zx=instruction[11], nx=instruction[10],
+        zy=instruction[9], ny=instruction[8],
+        f=instruction[7], no=instruction[6],
         out=, zr=, ng=
     );
 }
