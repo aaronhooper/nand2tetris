@@ -39,11 +39,23 @@ CHIP CPU {
         pc[15];          // address of next instruction
 
     PARTS:
-    Mux16 (a=, b=instruction, sel=instruction[15], out=);
-    Mux16 (a=, b=inM, sel=, out=);
-    PC (in=, load=, inc=, reset=reset);
-    Register (in=, load=, out=);  // A register
-    Register (in=, load=, out=);  // D register
+    /* instruction[15] -> A/C instruction */
+    /* instruction[5]  -> d1 */
+    And (a=instruction[5], b=instruction[15], out=d1Andac);
+    Not (in=instruction[15], out=acNot);
+    Mux16 (a=outM, b=instruction[0..14], b[15]=false, sel=acNot, out=acNotMux);
+    Or (a=d1Andac, b=acNot, out=outOr);
+
+    /* A register */
+    Register (in=acNotMux, load=outOr, out=Aout, out=addressM);
+
+    /* instruction[12] -> a */
+    Mux16 (a=Aout, b=inM, sel=instruction[12], out=amMux);
+    PC (in=Aout, load=, inc=true, reset=reset);
+
+    /* D register */
+    Register (in=, load=, out=);
+
     ALU (
         x=, y=,
         zx=, nx=, zy=, ny=,
