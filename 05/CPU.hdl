@@ -57,13 +57,15 @@ CHIP CPU {
 
     /* Select A/M register */
     /* instruction[12] -> a */
-    Mux16 (a[0..14]=Aout, b=inM, sel=instruction[12], out=amMux);
+    And (a=instruction[15], b=instruction[12], out=amSelect);
+    Mux16 (a[0..14]=Aout, b=inM, sel=amSelect, out=amMux);
 
     /* Program Counter */
     PC (in[0..14]=Aout, load=jump, inc=true, reset=reset, out[0..14]=pc);
 
     /* instruction[4] -> d2 */
-    DRegister (in=ALUout, load=instruction[4], out=Dout);
+    And (a=instruction[15], b=instruction[4], out=loadD);
+    DRegister (in=ALUout, load=loadD, out=Dout);
 
     /* Write to M? */
     /* instruction[3] -> d3 */
@@ -82,7 +84,7 @@ CHIP CPU {
         /* instruction[6]  -> no / c6 */
         f=instruction[7], no=instruction[6],
 
-        x[0..14]=Aout, y=amMux,
+        x=Dout, y=amMux,
         out=ALUout, zr=ALUzr, ng=ALUng,
         out[15]=pos
     );
