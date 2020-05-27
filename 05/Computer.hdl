@@ -19,13 +19,13 @@ CHIP Computer {
     IN reset;
 
     PARTS:
-    ROM32K (address=, out=);
+    ROM32K (address=CPUpc, out=ROMout);
     CPU (
-        inM=, instruction=, reset=,
-        outM=, writeM=, addressM=, pc=
+        inM=RAMout, instruction=ROMout, reset=reset,
+        outM=CPUout, writeM=CPUwrite, addressM=CPUaddress, pc=CPUpc
     );
     Memory (
-        in=, load=, address=,
-        out=
+        in=CPUout, load=CPUwrite, address=CPUaddress,
+        out=RAMout
     );
 }
