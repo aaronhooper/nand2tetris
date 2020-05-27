@@ -40,6 +40,7 @@ CHIP CPU {
 
 
     PARTS:
+
     /* Select A/C instruction */
     /* instruction[15] -> A/C bit */
     /* instruction[5]  -> d1 */
@@ -47,7 +48,6 @@ CHIP CPU {
     Not (in=instruction[15], out=acNot);
     Or (a=d1Andac, b=acNot, out=outOr);
     Mux16 (a=ALUout, b[0..14]=instruction[0..14], b[15]=false, sel=acNot, out=acNotMux);
-
     ARegister (in=acNotMux, load=outOr, out[0..14]=Aout, out[0..14]=addressM);
 
     /* Select A/M register */
@@ -58,6 +58,7 @@ CHIP CPU {
     /* Program Counter */
     PC (in[0..14]=Aout, load=jump, inc=true, reset=reset, out[0..14]=pc);
 
+    /* Write to D if the word is a C instruction. */
     /* instruction[4] -> d2 */
     And (a=instruction[15], b=instruction[4], out=loadD);
     DRegister (in=ALUout, load=loadD, out=Dout);
@@ -66,6 +67,8 @@ CHIP CPU {
     /* instruction[3] -> d3 */
     And (a=instruction[15], b=instruction[3], out=writeM);
 
+
+    /* Arithmetic Logic */
     ALU (
         /* instruction[11] -> zx / c1 */
         /* instruction[10] -> nx / c2 */
@@ -84,8 +87,8 @@ CHIP CPU {
         out=outM
     );
 
-    /* Jump conditionals */
-    /* Ya didn't check for instruction[15] you spaz */
+
+    /* Jump Conditionals */
     /* instruction[2] -> j1 */
     And (a=instruction[2], b=ALUng, out=j1out);
 
@@ -98,7 +101,7 @@ CHIP CPU {
     And (a=instruction[0], b=NotngOrzr, out=j3out);
 
     /* Jump only if at least one of the 3 jump predicates is satisfied
-     * and the word is a C instruction. */
+    * and the word is a C instruction. */
     Or (a=j1out, b=j2out, out=j1Orj2);
     Or (a=j1Orj2, b=j3out, out=j1Orj2Orj3);
     And (a=instruction[15], b=j1Orj2Orj3, out=jump);
