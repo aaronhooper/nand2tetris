@@ -39,11 +39,6 @@ CHIP CPU {
         pc[15];          // address of next instruction
 
 
-    /**
-     * The issue might be that you're using instruction bits where
-     * you're not checking if it is a C instruction?!
-     */
-
     PARTS:
     /* Select A/C instruction */
     /* instruction[15] -> A/C bit */
@@ -86,7 +81,7 @@ CHIP CPU {
 
         x=Dout, y=amMux,
         out=ALUout, zr=ALUzr, ng=ALUng,
-        out[15]=pos, out=outM
+        out=outM
     );
 
     /* Jump conditionals */
@@ -97,9 +92,11 @@ CHIP CPU {
     And (a=instruction[1], b=ALUzr, out=j2out);
 
     /* instruction[0] -> j3 */
-    And (a=instruction[0], b=NotoutM15, out=j3out);
+    Or (a=ALUng, b=ALUzr, out=ngOrzr);
+    Not (in=ngOrzr, out=NotngOrzr);
+    And (a=instruction[0], b=NotngOrzr, out=j3out);
 
-    Not (in=pos, out=NotoutM15);
-    And (a=j1out, b=j2out, out=j1Andj2);
-    And (a=j1Andj2, b=j3out, out=jump);
+    /* Jump if one of the 3 jump predicates is satisfied. */
+    Or (a=j1out, b=j2out, out=j1Orj2);
+    Or (a=j1Orj2, b=j3out, out=jump);
 }
