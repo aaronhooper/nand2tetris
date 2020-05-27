@@ -85,6 +85,7 @@ CHIP CPU {
     );
 
     /* Jump conditionals */
+    /* Ya didn't check for instruction[15] you spaz */
     /* instruction[2] -> j1 */
     And (a=instruction[2], b=ALUng, out=j1out);
 
@@ -96,7 +97,9 @@ CHIP CPU {
     Not (in=ngOrzr, out=NotngOrzr);
     And (a=instruction[0], b=NotngOrzr, out=j3out);
 
-    /* Jump if one of the 3 jump predicates is satisfied. */
+    /* Jump only if at least one of the 3 jump predicates is satisfied
+     * and the word is a C instruction. */
     Or (a=j1out, b=j2out, out=j1Orj2);
-    Or (a=j1Orj2, b=j3out, out=jump);
+    Or (a=j1Orj2, b=j3out, out=j1Orj2Orj3);
+    And (a=instruction[15], b=j1Orj2Orj3, out=jump);
 }
