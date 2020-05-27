@@ -39,7 +39,8 @@ CHIP CPU {
         pc[15];          // address of next instruction
 
     PARTS:
-    /* instruction[15] -> A/C instruction */
+    /* Select A/C instruction */
+    /* instruction[15] -> A/C bit */
     /* instruction[5]  -> d1 */
     And (a=instruction[5], b=instruction[15], out=d1Andac);
     Not (in=instruction[15], out=acNot);
@@ -49,38 +50,49 @@ CHIP CPU {
     /* A register */
     Register (in=acNotMux, load=outOr, out[0..14]=Aout, out=addressM);
 
+    /* Select A/M register */
     /* instruction[12] -> a */
     Mux16 (a=Aout, b=inM, sel=instruction[12], out=amMux);
+
+    /* Program Counter */
     PC (in=Aout, load=jump, inc=true, reset=reset, out[0..14]=pc);
 
     /* D register */
     /* instruction[4] -> d2 */
     Register (in=ALUout, load=instruction[4], out=Dout);
 
+    /* Write to M? */
     /* instruction[3] -> d3 */
     And (a=instruction[15], b=instruction[3], out=writeM);
 
-    /* instruction[11] -> zx / c1 */
-    /* instruction[10] -> nx / c2 */
-    /* instruction[9]  -> zy / c3 */
-    /* instruction[8]  -> ny / c4 */
-    /* instruction[7]  -> f  / c5 */
-    /* instruction[6]  -> no / c6 */
     ALU (
-        x=Aout, y=amMux,
+        /* instruction[11] -> zx / c1 */
+        /* instruction[10] -> nx / c2 */
         zx=instruction[11], nx=instruction[10],
+
+        /* instruction[9]  -> zy / c3 */
+        /* instruction[8]  -> ny / c4 */
         zy=instruction[9], ny=instruction[8],
+
+        /* instruction[7]  -> f  / c5 */
+        /* instruction[6]  -> no / c6 */
         f=instruction[7], no=instruction[6],
+
+        x=Aout, y=amMux,
         out=ALUout, zr=ALUzr, ng=ALUng
     );
 
+    /* Jump conditionals */
     /* instruction[2] -> j1 */
-    /* instruction[1] -> j2 */
-    /* instruction[0] -> j3 */
     And (a=instruction[2], b=ALUng, out=j1out);
+
+    /* instruction[1] -> j2 */
     And (a=instruction[1], b=ALUzr, out=j2out);
-    Not (in=outM[15], out=NotoutM15);
+
+    /* instruction[0] -> j3 */
     And (a=instruction[0], b=NotoutM15, out=j3out);
+
+    Not (in=outM[15], out=NotoutM15);
     And (a=j1out, b=j2out, out=j1Andj2);
     And (a=j1Andj2, b=j3out, out=jump);
 }
