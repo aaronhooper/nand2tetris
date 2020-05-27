@@ -45,21 +45,19 @@ CHIP CPU {
     And (a=instruction[5], b=instruction[15], out=d1Andac);
     Not (in=instruction[15], out=acNot);
     Or (a=d1Andac, b=acNot, out=outOr);
-    Mux16 (a=ALUout, b=instruction[0..14], b[15]=false, sel=acNot, out=acNotMux);
+    Mux16 (a=ALUout, b[0..14]=instruction[0..14], b[15]=false, sel=acNot, out=acNotMux);
 
-    /* A register */
-    Register (in=acNotMux, load=outOr, out[0..14]=Aout, out=addressM);
+    ARegister (in=acNotMux, load=outOr, out[0..14]=Aout, out[0..14]=addressM);
 
     /* Select A/M register */
     /* instruction[12] -> a */
-    Mux16 (a=Aout, b=inM, sel=instruction[12], out=amMux);
+    Mux16 (a[0..14]=Aout, b=inM, sel=instruction[12], out=amMux);
 
     /* Program Counter */
-    PC (in=Aout, load=jump, inc=true, reset=reset, out[0..14]=pc);
+    PC (in[0..14]=Aout, load=jump, inc=true, reset=reset, out[0..14]=pc);
 
-    /* D register */
     /* instruction[4] -> d2 */
-    Register (in=ALUout, load=instruction[4], out=Dout);
+    DRegister (in=ALUout, load=instruction[4], out=Dout);
 
     /* Write to M? */
     /* instruction[3] -> d3 */
@@ -78,8 +76,9 @@ CHIP CPU {
         /* instruction[6]  -> no / c6 */
         f=instruction[7], no=instruction[6],
 
-        x=Aout, y=amMux,
-        out=ALUout, zr=ALUzr, ng=ALUng
+        x[0..14]=Aout, y=amMux,
+        out=ALUout, zr=ALUzr, ng=ALUng,
+        out[15]=pos
     );
 
     /* Jump conditionals */
@@ -92,7 +91,7 @@ CHIP CPU {
     /* instruction[0] -> j3 */
     And (a=instruction[0], b=NotoutM15, out=j3out);
 
-    Not (in=outM[15], out=NotoutM15);
+    Not (in=pos, out=NotoutM15);
     And (a=j1out, b=j2out, out=j1Andj2);
     And (a=j1Andj2, b=j3out, out=jump);
 }
