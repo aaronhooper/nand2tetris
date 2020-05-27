@@ -86,7 +86,7 @@ CHIP CPU {
 
         x=Dout, y=amMux,
         out=ALUout, zr=ALUzr, ng=ALUng,
-        out[15]=pos
+        out[15]=pos, out=outM
     );
 
     /* Jump conditionals */
