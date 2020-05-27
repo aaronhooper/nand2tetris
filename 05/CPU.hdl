@@ -43,8 +43,8 @@ CHIP CPU {
     /* instruction[5]  -> d1 */
     And (a=instruction[5], b=instruction[15], out=d1Andac);
     Not (in=instruction[15], out=acNot);
-    Mux16 (a=outM, b=instruction[0..14], b[15]=false, sel=acNot, out=acNotMux);
     Or (a=d1Andac, b=acNot, out=outOr);
+    Mux16 (a=ALUout, b=instruction[0..14], b[15]=false, sel=acNot, out=acNotMux);
 
     /* A register */
     Register (in=acNotMux, load=outOr, out[0..14]=Aout, out=addressM);
