@@ -38,6 +38,12 @@ CHIP CPU {
         addressM[15],    // Address in data memory (of M)
         pc[15];          // address of next instruction
 
+
+    /**
+     * The issue might be that you're using instruction bits where
+     * you're not checking if it is a C instruction?!
+     */
+
     PARTS:
     /* Select A/C instruction */
     /* instruction[15] -> A/C bit */
